@@ -6,15 +6,16 @@ import { getPostSlug } from '../utils/posts';
 
 export interface Props {
   post: CollectionEntry<'posts'>;
+  compact?: boolean;
 }
 
-const { post } = Astro.props;
+const { post, compact = false } = Astro.props;
 const { title, description, date, category, tags } = post.data;
 const slug = getPostSlug(post);
 const formattedDate = formatDate(date);
 ---
 
-<article class="article-card card">
+<article class:list={['article-card', 'card', { compact }]}>
   <a href={`/posts/${slug}`} class="article-link">
     <div class="article-meta">
       <time class="article-date" datetime={date.toISOString()}>
@@ -117,5 +118,46 @@ const formattedDate = formatDate(date);
 
   .tag:hover {
     color: var(--color-text-secondary);
+  }
+
+  .article-card.compact {
+    height: 100%;
+  }
+
+  .compact .article-link {
+    height: 100%;
+    padding: 14px;
+  }
+
+  .compact .article-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 10px;
+    font-size: 11px;
+  }
+
+  .compact .article-category {
+    padding: 1px 7px;
+    font-size: 10px;
+  }
+
+  .compact .article-title {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .compact .article-desc {
+    font-size: 11px;
+    line-height: 1.5;
+    margin-bottom: 9px;
+  }
+
+  .compact .article-tags {
+    gap: 4px;
+  }
+
+  .compact .tag {
+    font-size: 10px;
   }
 </style>

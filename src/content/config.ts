@@ -20,13 +20,23 @@ const lifeCollection = defineCollection({
     title: z.string(),
     description: z.string().optional(),
     image: z.string(),
+    images: z.array(z.string()).min(1).optional(),
     category: z.enum(LIFE_CATEGORY_SLUGS),
     link: z.string().optional(),
     date: z.date(),
   }),
 });
 
+const aboutCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+  }),
+});
+
 export const collections = {
   posts: postsCollection,
   life: lifeCollection,
+  about: aboutCollection,
 };

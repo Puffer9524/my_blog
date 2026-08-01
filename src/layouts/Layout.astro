@@ -3,6 +3,8 @@ import '../styles/global.css';
 import Navbar from '../components/Navbar.astro';
 import ProfileCard from '../components/ProfileCard.astro';
 import CategoryCard from '../components/CategoryCard.astro';
+import TagCard from '../components/TagCard.astro';
+import HomeCover from '../components/HomeCover.astro';
 import { siteConfig } from '../config/site';
 
 export interface Props {
@@ -11,7 +13,11 @@ export interface Props {
   showSideCards?: boolean;
 }
 
-const { title, description, showSideCards = true } = Astro.props;
+const {
+  title,
+  description,
+  showSideCards = true,
+} = Astro.props;
 const hasRightSidebar = Astro.slots['right-sidebar'] != null;
 ---
 
@@ -20,21 +26,45 @@ const hasRightSidebar = Astro.slots['right-sidebar'] != null;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <script is:inline>
+      (() => {
+        try {
+          const mode = localStorage.getItem('theme-mode') || 'system';
+          const theme = mode === 'system'
+            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+            : mode;
+
+          document.documentElement.dataset.themeMode = mode;
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.backgroundColor = theme === 'dark' ? '#0f172a' : '#f3f4f6';
+        } catch {
+          const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+          document.documentElement.style.backgroundColor = isDark ? '#0f172a' : '#f3f4f6';
+        }
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title ? `${title} | ${siteConfig.name}` : siteConfig.name}</title>
     <meta name="description" content={description ?? siteConfig.description} />
   </head>
   <body>
     <Navbar />
+    <HomeCover />
 
     <div
       class="page-wrapper"
-      class:list={{ 'has-right-sidebar': hasRightSidebar }}
+      class:list={{
+        'has-right-sidebar': hasRightSidebar,
+        'with-home-cover': true,
+      }}
     >
       {showSideCards && (
         <aside class="page-sidebar">
           <ProfileCard />
           <CategoryCard />
+          <TagCard />
         </aside>
       )}
 

@@ -1,0 +1,76 @@
+---
+import { getPublishedPosts } from '../utils/posts';
+
+const posts = await getPublishedPosts();
+const tagCounts = new Map<string, number>();
+
+for (const post of posts) {
+  for (const tag of post.data.tags) {
+    tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+  }
+}
+
+const tags = Array.from(tagCounts, ([name, count]) => ({ name, count }))
+  .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'zh-CN'));
+---
+
+{
+  tags.length > 0 && (
+    <div class="tag-card card">
+      <h3 class="card-title">文章标签</h3>
+      <ul class="tag-list">
+        {tags.map((tag) => (
+          <li>
+            <a href={`/tag/${encodeURIComponent(tag.name)}`} class="tag-item">
+              <span>#{tag.name}</span>
+              <span class="tag-count">{tag.count}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+<style>
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .tag-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 50px;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+  }
+
+  .tag-item:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+  }
+
+  .tag-count {
+    min-width: 17px;
+    padding: 0 5px;
+    border-radius: 50px;
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    font-size: 10px;
+    line-height: 17px;
+    text-align: center;
+  }
+</style>

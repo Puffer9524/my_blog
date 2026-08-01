@@ -1,0 +1,367 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+export interface Props {
+  album: CollectionEntry<'life'>;
+}
+
+const { album } = Astro.props;
+const { title, description, image, images = [] } = album.data;
+const photos = Array.from(new Set([image, ...images]));
+
+function photoAt(offset: number) {
+  return photos[offset % photos.length];
+}
+---
+
+<article
+  class="photo-album card"
+  data-photo-album
+  data-photos={JSON.stringify(photos)}
+  data-title={title}
+>
+  <button
+    class="album-stack"
+    type="button"
+    aria-pressed="false"
+    aria-label={`选择相册：${title}，共 ${photos.length} 张照片`}
+  >
+    <img src={photoAt(2)} alt="" class="stack-photo stack-photo-back" loading="lazy" />
+    <img src={photoAt(1)} alt="" class="stack-photo stack-photo-middle" loading="lazy" />
+    <img src={photoAt(0)} alt={title} class="stack-photo stack-photo-front" loading="lazy" />
+    <span class="album-count"><span class="current-index">1</span> / {photos.length}</span>
+  </button>
+
+  <div class="album-info">
+    <h3>{title}</h3>
+    {description && <p>{description}</p>}
+  </div>
+
+  <div class="album-controls" aria-hidden="true">
+    <div class="page-controls">
+      <button class="album-prev" type="button" aria-label="上一张">←</button>
+      <button class="album-next" type="button" aria-label="下一张">→</button>
+    </div>
+  </div>
+
+  <button
+    class="album-main-button"
+    type="button"
+    data-full={photos[0]}
+    data-title={`${title} 1/${photos.length}`}
+    aria-label={`查看 ${title} 大图`}
+    tabindex="-1"
+  ></button>
+</article>
+
+<style>
+  .photo-album {
+    position: relative;
+    padding: 8px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+    grid-column: span 2;
+  }
+
+  .photo-album.selected {
+    border: 0;
+    box-shadow: none;
+  }
+
+  .album-stack {
+    position: relative;
+    display: block;
+    width: calc(100% - 12px);
+    aspect-ratio: 1;
+    margin: 0 6px 14px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    touch-action: pan-y;
+    user-select: none;
+  }
+
+  .stack-photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 2px solid var(--color-bg-card);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card-hover);
+    transition: transform 0.25s, opacity 0.18s;
+  }
+
+  .album-stack.turn-next .stack-photo-front {
+    animation: page-next 0.34s ease;
+  }
+
+  .album-stack.turn-prev .stack-photo-front {
+    animation: page-prev 0.34s ease;
+  }
+
+  .album-stack.turn-next .stack-photo-middle,
+  .album-stack.turn-prev .stack-photo-middle {
+    animation: page-rise 0.34s ease;
+  }
+
+  @keyframes page-next {
+    0% { opacity: 1; transform: translateX(0) rotate(0); }
+    48% { opacity: 0; transform: translateX(-45%) rotate(-7deg); }
+    49% { opacity: 0; transform: translateX(35%) rotate(5deg); }
+    100% { opacity: 1; transform: translateX(0) rotate(0); }
+  }
+
+  @keyframes page-prev {
+    0% { opacity: 1; transform: translateX(0) rotate(0); }
+    48% { opacity: 0; transform: translateX(45%) rotate(7deg); }
+    49% { opacity: 0; transform: translateX(-35%) rotate(-5deg); }
+    100% { opacity: 1; transform: translateX(0) rotate(0); }
+  }
+
+  @keyframes page-rise {
+    0%, 45% { transform: translate(-7px, 3px) rotate(-4deg); }
+    65% { transform: translate(0, 0) rotate(0); }
+    100% { transform: translate(-7px, 3px) rotate(-4deg); }
+  }
+
+  .stack-photo-back { transform: translate(8px, -5px) rotate(4deg); }
+  .stack-photo-middle { transform: translate(-7px, 3px) rotate(-4deg); }
+  .stack-photo-front { transform: none; }
+
+  .album-stack:hover .stack-photo-back { transform: translate(12px, -8px) rotate(6deg); }
+  .album-stack:hover .stack-photo-middle { transform: translate(-11px, 5px) rotate(-6deg); }
+
+  .photo-album.selected .album-stack::after {
+    content: '滚轮翻页 · 再次点击查看大图';
+    position: absolute;
+    z-index: 5;
+    left: 50%;
+    bottom: 8px;
+    padding: 4px 8px;
+    border-radius: 50px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+    font-size: 10px;
+    white-space: nowrap;
+    transform: translateX(-50%);
+  }
+
+  @media (pointer: coarse) {
+    .photo-album.selected .album-stack::after {
+      content: '左右滑动翻页 · 点击查看大图';
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .album-stack.turn-next .stack-photo-front,
+    .album-stack.turn-prev .stack-photo-front,
+    .album-stack.turn-next .stack-photo-middle,
+    .album-stack.turn-prev .stack-photo-middle {
+      animation: none;
+    }
+  }
+
+  .album-count {
+    position: absolute;
+    z-index: 4;
+    right: 8px;
+    top: 8px;
+    padding: 4px 8px;
+    border-radius: 50px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    font-size: 11px;
+  }
+
+  .album-info h3 {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .album-info p {
+    margin-top: 4px;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .album-controls {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-divider);
+  }
+
+  .album-main-button {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .photo-album.selected .album-controls {
+    display: flex;
+  }
+
+  .album-controls button {
+    padding: 5px 8px;
+    border: 1px solid var(--color-border);
+    border-radius: 50px;
+    color: var(--color-text-secondary);
+    background: var(--color-bg-card);
+    font: inherit;
+    font-size: 10px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+  }
+
+  .album-controls button:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background: var(--color-bg-hover);
+  }
+
+  .page-controls {
+    display: flex;
+    gap: 4px;
+  }
+
+  @media (max-width: 640px) {
+    .photo-album {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('[data-photo-album]').forEach((album) => {
+    const element = album as HTMLElement;
+    const photos = JSON.parse(element.dataset.photos ?? '[]') as string[];
+    const title = element.dataset.title ?? '';
+    const stack = element.querySelector('.album-stack');
+    const front = element.querySelector('.stack-photo-front') as HTMLImageElement | null;
+    const middle = element.querySelector('.stack-photo-middle') as HTMLImageElement | null;
+    const back = element.querySelector('.stack-photo-back') as HTMLImageElement | null;
+    const counter = element.querySelector('.current-index');
+    const prevButton = element.querySelector('.album-prev');
+    const nextButton = element.querySelector('.album-next');
+    const viewButton = element.querySelector('.album-main-button') as HTMLElement | null;
+    const coarsePointer = window.matchMedia('(pointer: coarse)');
+    let currentIndex = 0;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchMoved = false;
+    let wheelLocked = false;
+
+    function renderPhoto() {
+      if (photos.length === 0 || !front || !middle || !back) return;
+      const at = (offset: number) => photos[(currentIndex + offset + photos.length) % photos.length];
+      front.src = at(0);
+      front.alt = `${title} ${currentIndex + 1}/${photos.length}`;
+      middle.src = at(1);
+      back.src = at(2);
+      if (counter) counter.textContent = String(currentIndex + 1);
+      if (viewButton) {
+        viewButton.dataset.full = at(0);
+        viewButton.dataset.title = `${title} ${currentIndex + 1}/${photos.length}`;
+      }
+    }
+
+    function selectAlbum() {
+      element.classList.add('selected');
+      stack?.setAttribute('aria-pressed', 'true');
+      element.querySelector('.album-controls')?.setAttribute('aria-hidden', 'false');
+    }
+
+    function exitAlbum() {
+      element.classList.remove('selected');
+      stack?.setAttribute('aria-pressed', 'false');
+      element.querySelector('.album-controls')?.setAttribute('aria-hidden', 'true');
+    }
+
+    function changePhoto(step: number) {
+      if (photos.length < 2) return;
+      const animationClass = step > 0 ? 'turn-next' : 'turn-prev';
+      stack?.classList.remove('turn-next', 'turn-prev');
+      void (stack as HTMLElement | null)?.offsetWidth;
+      stack?.classList.add(animationClass);
+      currentIndex = (currentIndex + step + photos.length) % photos.length;
+      window.setTimeout(renderPhoto, 160);
+      window.setTimeout(() => stack?.classList.remove(animationClass), 360);
+    }
+
+    stack?.addEventListener('click', () => {
+      if (touchMoved) {
+        touchMoved = false;
+        return;
+      }
+
+      if (coarsePointer.matches) {
+        viewButton?.click();
+        return;
+      }
+
+      if (!element.classList.contains('selected')) {
+        selectAlbum();
+        return;
+      }
+      viewButton?.click();
+    });
+
+    stack?.addEventListener('wheel', (event) => {
+      if (coarsePointer.matches || !element.classList.contains('selected')) return;
+      event.preventDefault();
+      if (wheelLocked || Math.abs(event.deltaY) < 8) return;
+      wheelLocked = true;
+      changePhoto(event.deltaY > 0 ? 1 : -1);
+      window.setTimeout(() => {
+        wheelLocked = false;
+      }, 380);
+    }, { passive: false });
+
+    stack?.addEventListener('touchstart', (event) => {
+      const touch = event.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      touchMoved = false;
+    }, { passive: true });
+
+    stack?.addEventListener('touchend', (event) => {
+      const touch = event.changedTouches[0];
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+
+      if (Math.abs(deltaX) > 42 && Math.abs(deltaX) > Math.abs(deltaY)) {
+        touchMoved = true;
+        selectAlbum();
+        changePhoto(deltaX < 0 ? 1 : -1);
+      }
+    }, { passive: true });
+
+    prevButton?.addEventListener('click', () => changePhoto(-1));
+    nextButton?.addEventListener('click', () => changePhoto(1));
+    document.addEventListener('pointerdown', (event) => {
+      if (!element.contains(event.target as Node)) exitAlbum();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && element.classList.contains('selected')) {
+        exitAlbum();
+      }
+    });
+  });
+</script>

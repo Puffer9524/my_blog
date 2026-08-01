@@ -3,6 +3,9 @@ import { postCategories } from '../config/categories';
 import { getPublishedPosts } from '../utils/posts';
 
 const publishedPosts = await getPublishedPosts();
+const visibleLimit = 5;
+const visibleCategories = postCategories.slice(0, visibleLimit);
+const additionalCategories = postCategories.slice(visibleLimit);
 
 function countByCategory(slug: string): number {
   return publishedPosts.filter((p) => p.data.category === slug).length;
@@ -10,17 +13,37 @@ function countByCategory(slug: string): number {
 ---
 
 <div class="category-card card">
-  <h3 class="card-title">文章分类</h3>
+  <h3 class="card-title">分类</h3>
   <ul class="category-list">
-    {postCategories.map((category) => (
+    {visibleCategories.map((category) => (
       <li>
         <a href={`/category/${category.slug}`} class="category-item">
           <span class="category-name">{category.label}</span>
-          <span class="category-count">{countByCategory(category.slug)} 篇</span>
+          <span class="category-count">{countByCategory(category.slug)}</span>
         </a>
       </li>
     ))}
   </ul>
+
+  {additionalCategories.length > 0 && (
+    <details class="category-more">
+      <summary>
+        <span class="more-label">查看更多</span>
+        <span class="less-label">收起</span>
+        <span class="more-arrow" aria-hidden="true">⌄</span>
+      </summary>
+      <ul class="category-list additional-list">
+        {additionalCategories.map((category) => (
+          <li>
+            <a href={`/category/${category.slug}`} class="category-item">
+              <span class="category-name">{category.label}</span>
+              <span class="category-count">{countByCategory(category.slug)}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </details>
+  )}
 </div>
 
 <style>
@@ -31,35 +54,113 @@ function countByCategory(slug: string): number {
   }
 
   .category-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+    width: 100%;
+    padding-left: 8px;
+    border-left: 2px solid var(--color-divider);
+  }
+
+  .category-list > li {
+    display: block;
+    width: 100%;
+    min-width: 0;
   }
 
   .category-item {
-    display: inline-flex;
+    position: relative;
+    display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 50px;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+    padding: 7px 9px;
+    border-radius: var(--radius-sm);
     font-size: 13px;
     color: var(--color-text-secondary);
-    background: var(--color-bg);
-    border: 1px solid transparent;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .category-item::before {
+    content: '';
+    position: absolute;
+    left: -11px;
+    width: 2px;
+    height: 18px;
+    border-radius: 2px;
+    background: transparent;
+    transition: background-color 0.2s;
   }
 
   .category-item:hover {
-    color: var(--color-text);
-    border-color: var(--color-border);
+    color: var(--color-accent);
     background: var(--color-bg-hover);
   }
 
+  .category-item:hover::before {
+    background: var(--color-accent);
+  }
+
   .category-count {
+    flex-shrink: 0;
+    min-width: 24px;
     font-size: 11px;
     color: var(--color-text-muted);
-    background: var(--color-bg-card);
-    padding: 1px 7px;
-    border-radius: 10px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  .category-more {
+    margin-top: 4px;
+  }
+
+  .category-more summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-muted);
+    font-size: 12px;
+    cursor: pointer;
+    list-style: none;
+    transition: color 0.2s, background-color 0.2s;
+  }
+
+  .category-more summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .category-more summary:hover {
+    color: var(--color-accent);
+    background: var(--color-bg-hover);
+  }
+
+  .less-label {
+    display: none;
+  }
+
+  .more-arrow {
+    line-height: 1;
+    transition: transform 0.2s;
+  }
+
+  .category-more[open] .more-label {
+    display: none;
+  }
+
+  .category-more[open] .less-label {
+    display: inline;
+  }
+
+  .category-more[open] .more-arrow {
+    transform: rotate(180deg);
+  }
+
+  .additional-list {
+    margin-top: 2px;
   }
 </style>
