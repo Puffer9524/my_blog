@@ -1,19 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { formatMonthDay } from '../utils/date';
-import { getPostSlug, getPublishedPosts } from '../utils/posts';
+import PostTimeline from '../components/PostTimeline.astro';
+import { getPublishedPosts } from '../utils/posts';
 
 const publishedPosts = await getPublishedPosts();
-
-// Group by year
-const groupedByYear = new Map<number, typeof publishedPosts>();
-for (const post of publishedPosts) {
-  const year = post.data.date.getFullYear();
-  if (!groupedByYear.has(year)) groupedByYear.set(year, []);
-  groupedByYear.get(year)!.push(post);
-}
-
-const years = Array.from(groupedByYear.keys()).sort((a, b) => b - a);
 ---
 
 <Layout title="归档">
@@ -21,29 +11,7 @@ const years = Array.from(groupedByYear.keys()).sort((a, b) => b - a);
     <h1 class="archive-title">归档</h1>
     <p class="archive-count">共 {publishedPosts.length} 篇文章</p>
 
-    <div class="timeline">
-      {years.map((year) => (
-        <section class="timeline-year">
-          <h2 class="year-heading">{year}</h2>
-
-          <ul class="timeline-list">
-            {groupedByYear.get(year)!.map((post) => {
-              const slug = getPostSlug(post);
-              const monthDay = formatMonthDay(post.data.date);
-              return (
-                <li class="timeline-item">
-                  <span class="timeline-date">{monthDay}</span>
-                  <span class="timeline-dot" />
-                  <a href={`/posts/${slug}`} class="timeline-title">
-                    {post.data.title}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      ))}
-    </div>
+    <PostTimeline posts={publishedPosts} />
   </div>
 </Layout>
 
@@ -64,89 +32,9 @@ const years = Array.from(groupedByYear.keys()).sort((a, b) => b - a);
     margin-bottom: 28px;
   }
 
-  .timeline {
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
-  }
-
-  .year-heading {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--color-accent);
-    margin-bottom: 12px;
-    padding-left: 8px;
-    border-left: 3px solid var(--color-accent);
-  }
-
-  .timeline-list {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .timeline-item {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-    padding: 8px 8px;
-    border-radius: var(--radius-sm);
-    transition: background-color 0.15s;
-  }
-
-  .timeline-item:hover {
-    background-color: var(--color-bg-hover);
-  }
-
-  .timeline-date {
-    flex-shrink: 0;
-    width: 56px;
-    font-size: 13px;
-    color: var(--color-text-muted);
-    font-variant-numeric: tabular-nums;
-    text-align: right;
-  }
-
-  .timeline-dot {
-    flex-shrink: 0;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--color-border);
-    margin-top: 6px;
-  }
-
-  .timeline-item:hover .timeline-dot {
-    background: var(--color-accent);
-  }
-
-  .timeline-title {
-    font-size: 15px;
-    color: var(--color-text-secondary);
-    transition: color 0.15s;
-    line-height: 1.4;
-  }
-
-  .timeline-title:hover {
-    color: var(--color-accent);
-  }
-
   @media (max-width: 768px) {
     .archive-card {
       padding: 18px;
-    }
-
-    .timeline-item {
-      gap: 8px;
-      padding: 6px 4px;
-    }
-
-    .timeline-date {
-      width: 44px;
-      font-size: 12px;
-    }
-
-    .timeline-title {
-      font-size: 14px;
     }
   }
 </style>

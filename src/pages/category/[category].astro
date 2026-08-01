@@ -1,5 +1,5 @@
 ---
-import ArticleCard from '../../components/ArticleCard.astro';
+import PostTimeline from '../../components/PostTimeline.astro';
 import {
   postCategories,
   type PostCategory,
@@ -34,41 +34,33 @@ const { category, posts } = Astro.props as Props;
   title={category.label}
   description={`${category.label}分类下的文章`}
 >
-  <header class="card category-header">
+  <div class="card category-card">
     <h1>{category.label}</h1>
     <p>共 {posts.length} 篇文章</p>
-  </header>
-
-  {
-    posts.length > 0 ? (
-      posts.map((post) => <ArticleCard post={post} />)
-    ) : (
-      <div class="card empty-card">
-        <p>这个分类还没有文章。</p>
-      </div>
-    )
-  }
+    <PostTimeline posts={posts} emptyMessage="这个分类还没有文章。" />
+  </div>
 </Layout>
 
 <style>
-  .category-header {
-    padding: 20px 24px;
+  .category-card {
+    padding: 28px 32px;
   }
 
-  .category-header h1 {
-    font-size: 22px;
+  .category-card h1 {
+    font-size: 24px;
     font-weight: 700;
     margin-bottom: 4px;
   }
 
-  .category-header p,
-  .empty-card {
+  .category-card > p {
     color: var(--color-text-muted);
     font-size: 13px;
+    margin-bottom: 28px;
   }
 
-  .empty-card {
-    padding: 32px 24px;
-    text-align: center;
+  @media (max-width: 768px) {
+    .category-card {
+      padding: 18px;
+    }
   }
 </style>

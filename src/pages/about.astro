@@ -1,34 +1,22 @@
 ---
+import { getEntry } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+
+const about = await getEntry('about', 'profile');
+
+if (!about) {
+  throw new Error('缺少关于页面内容：src/content/about/profile.md');
+}
+
+const { Content } = await about.render();
 ---
 
-<Layout title="关于">
+<Layout title={about.data.title} description={about.data.description}>
   <div class="card about-card">
-    <h1 class="about-title">关于我</h1>
-
-    <section class="about-section prose">
-      <h2>👋 我是谁</h2>
-      <p>我是一个正在学习人工智能相关技术的学生</p>
-    </section>
-
-    <section class="about-section prose">
-      <h2>💼 工作 / 学习</h2>
-      <p>这里写你的工作或学习经历。</p>
-    </section>
-
-    <section class="about-section prose">
-      <h2>🛠 技术栈</h2>
-      <ul>
-        <li>这里列你的技能</li>
-        <li>例如：JavaScript、Node.js、Python...</li>
-      </ul>
-    </section>
-
-    <section class="about-section prose">
-      <h2>📬 联系方式</h2>
-      <p>邮箱：your-email@example.com</p>
-      <p>GitHub：<a href="https://github.com/">@yourname</a></p>
-    </section>
+    <h1 class="about-title">{about.data.title}</h1>
+    <div class="prose about-content">
+      <Content />
+    </div>
   </div>
 </Layout>
 
@@ -43,11 +31,7 @@ import Layout from '../layouts/Layout.astro';
     margin-bottom: 24px;
   }
 
-  .about-section {
-    margin-bottom: 24px;
-  }
-
-  .about-section h2 {
+  .about-content :global(h2) {
     font-size: 1.2em;
   }
 
