@@ -1,4 +1,7 @@
 ---
+import { siteConfig } from '../config/site';
+import { socialLinks } from '../data/social-links';
+
 export interface Props {
   avatar?: string;
   name?: string;
@@ -7,14 +10,11 @@ export interface Props {
 }
 
 const {
-  avatar = '/avatar-placeholder.svg',
-  name = 'Puffer',
-  bio = '记录学习与思考，分享技术见闻。',
-  signature = 'Stay hungry, stay foolish.',
+  avatar = siteConfig.author.avatar,
+  name = siteConfig.author.name,
+  bio = siteConfig.author.bio,
+  signature = siteConfig.author.signature,
 } = Astro.props;
-
-// Social links — fill in later: { label, url, icon }
-const socialLinks: { label: string; url: string; icon: string }[] = [];
 ---
 
 <div class="profile-card card">

@@ -1,5 +1,8 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { postCategoryLabels } from '../config/categories';
+import { formatDate } from '../utils/date';
+import { getPostSlug } from '../utils/posts';
 
 export interface Props {
   post: CollectionEntry<'posts'>;
@@ -7,19 +10,8 @@ export interface Props {
 
 const { post } = Astro.props;
 const { title, description, date, category, tags } = post.data;
-const slug = post.id.replace(/\.md$/, '');
-const formattedDate = date.toLocaleDateString('zh-CN', {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-});
-
-const categoryMap: Record<string, string> = {
-  frontend: '前端开发',
-  backend: '后端技术',
-  tools: '工具分享',
-  life: '生活随笔',
-};
+const slug = getPostSlug(post);
+const formattedDate = formatDate(date);
 ---
 
 <article class="article-card card">
@@ -30,7 +22,7 @@ const categoryMap: Record<string, string> = {
       </time>
       {category && (
         <span class="article-category">
-          {categoryMap[category] || category}
+          {postCategoryLabels[category]}
         </span>
       )}
     </div>

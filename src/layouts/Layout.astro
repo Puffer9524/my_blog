@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Navbar from '../components/Navbar.astro';
 import ProfileCard from '../components/ProfileCard.astro';
 import CategoryCard from '../components/CategoryCard.astro';
+import { siteConfig } from '../config/site';
 
 export interface Props {
   title?: string;
@@ -15,13 +16,13 @@ const hasRightSidebar = Astro.slots['right-sidebar'] != null;
 ---
 
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang={siteConfig.language}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{title ? `${title} | PufferSite` : 'PufferSite'}</title>
-    {description && <meta name="description" content={description} />}
+    <title>{title ? `${title} | ${siteConfig.name}` : siteConfig.name}</title>
+    <meta name="description" content={description ?? siteConfig.description} />
   </head>
   <body>
     <Navbar />

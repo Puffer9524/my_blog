@@ -1,0 +1,74 @@
+---
+import ArticleCard from '../../components/ArticleCard.astro';
+import {
+  postCategories,
+  type PostCategory,
+} from '../../config/categories';
+import Layout from '../../layouts/Layout.astro';
+import { getPublishedPosts } from '../../utils/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+
+  return postCategories.map((category) => ({
+    params: { category: category.slug },
+    props: {
+      category,
+      posts: posts.filter((post) => post.data.category === category.slug),
+    },
+  }));
+}
+
+interface Props {
+  category: {
+    slug: PostCategory;
+    label: string;
+  };
+  posts: Awaited<ReturnType<typeof getPublishedPosts>>;
+}
+
+const { category, posts } = Astro.props as Props;
+---
+
+<Layout
+  title={category.label}
+  description={`${category.label}分类下的文章`}
+>
+  <header class="card category-header">
+    <h1>{category.label}</h1>
+    <p>共 {posts.length} 篇文章</p>
+  </header>
+
+  {
+    posts.length > 0 ? (
+      posts.map((post) => <ArticleCard post={post} />)
+    ) : (
+      <div class="card empty-card">
+        <p>这个分类还没有文章。</p>
+      </div>
+    )
+  }
+</Layout>
+
+<style>
+  .category-header {
+    padding: 20px 24px;
+  }
+
+  .category-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .category-header p,
+  .empty-card {
+    color: var(--color-text-muted);
+    font-size: 13px;
+  }
+
+  .empty-card {
+    padding: 32px 24px;
+    text-align: center;
+  }
+</style>

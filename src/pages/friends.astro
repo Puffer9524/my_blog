@@ -1,21 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-
-interface Friend {
-  name: string;
-  url: string;
-  description: string;
-  avatar?: string;
-}
-
-const friends: Friend[] = [
-  // {
-  //   name: '朋友昵称',
-  //   url: 'https://example.com',
-  //   description: '一句简介',
-  //   avatar: '/friends/xxx.png',
-  // },
-];
+import { friends } from '../data/friends';
 ---
 
 <Layout title="友链">

@@ -1,20 +1,8 @@
 ---
-import { getCollection } from 'astro:content';
+import { postCategories } from '../config/categories';
+import { getPublishedPosts } from '../utils/posts';
 
-interface CategoryDef {
-  name: string;
-  slug: string;
-}
-
-const categories: CategoryDef[] = [
-  { name: '前端开发', slug: 'frontend' },
-  { name: '后端技术', slug: 'backend' },
-  { name: '工具分享', slug: 'tools' },
-  { name: '生活随笔', slug: 'life' },
-];
-
-const allPosts = await getCollection('posts');
-const publishedPosts = allPosts.filter((p) => !p.data.draft);
+const publishedPosts = await getPublishedPosts();
 
 function countByCategory(slug: string): number {
   return publishedPosts.filter((p) => p.data.category === slug).length;
@@ -24,11 +12,11 @@ function countByCategory(slug: string): number {
 <div class="category-card card">
   <h3 class="card-title">文章分类</h3>
   <ul class="category-list">
-    {categories.map((cat) => (
+    {postCategories.map((category) => (
       <li>
-        <a href={`/category/${cat.slug}`} class="category-item">
-          <span class="category-name">{cat.name}</span>
-          <span class="category-count">{countByCategory(cat.slug)} 篇</span>
+        <a href={`/category/${category.slug}`} class="category-item">
+          <span class="category-name">{category.label}</span>
+          <span class="category-count">{countByCategory(category.slug)} 篇</span>
         </a>
       </li>
     ))}

@@ -1,27 +1,19 @@
 ---
 import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import {
+  LIFE_CATEGORY_SLUGS,
+  lifeCategoryLabels,
+} from '../config/categories';
 
 const items = await getCollection('life');
 const sortedItems = items.sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
 
-// Extract categories with labels
-const categoryMap: Record<string, string> = {
-  music: '音乐',
-  movie: '电影',
-  reading: '阅读',
-  photography: '摄影',
-  travel: '旅行',
-  gaming: '游戏',
-  other: '其他',
-};
-
 // Get unique categories present in items, preserve order
-const catOrder = ['music', 'movie', 'reading', 'photography', 'travel', 'gaming', 'other'];
-const presentCats = catOrder.filter((c) =>
-  sortedItems.some((item) => item.data.category === c),
+const presentCats = LIFE_CATEGORY_SLUGS.filter((category) =>
+  sortedItems.some((item) => item.data.category === category),
 );
 
 const allLabel = '全部';
@@ -34,7 +26,7 @@ const allLabel = '全部';
       <button class="filter-tab active" data-cat="all">{allLabel}</button>
       {presentCats.map((cat) => (
         <button class="filter-tab" data-cat={cat}>
-          {categoryMap[cat] || cat}
+          {lifeCategoryLabels[cat]}
         </button>
       ))}
     </div>
@@ -80,7 +72,7 @@ const allLabel = '全部';
               </div>
             </div>
             <div class="card-body">
-              <span class="card-cat">{categoryMap[category] || category}</span>
+              <span class="card-cat">{lifeCategoryLabels[category]}</span>
               <h3 class="card-title">{title}</h3>
               {description && <p class="card-desc">{description}</p>}
             </div>

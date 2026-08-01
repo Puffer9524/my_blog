@@ -1,11 +1,9 @@
 ---
-import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import { formatMonthDay } from '../utils/date';
+import { getPostSlug, getPublishedPosts } from '../utils/posts';
 
-const allPosts = await getCollection('posts');
-const publishedPosts = allPosts
-  .filter((p) => !p.data.draft)
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const publishedPosts = await getPublishedPosts();
 
 // Group by year
 const groupedByYear = new Map<number, typeof publishedPosts>();
@@ -30,12 +28,8 @@ const years = Array.from(groupedByYear.keys()).sort((a, b) => b - a);
 
           <ul class="timeline-list">
             {groupedByYear.get(year)!.map((post) => {
-              const slug = post.id.replace(/\.md$/, '');
-              const d = post.data.date;
-              const monthDay = d.toLocaleDateString('zh-CN', {
-                month: 'short',
-                day: 'numeric',
-              });
+              const slug = getPostSlug(post);
+              const monthDay = formatMonthDay(post.data.date);
               return (
                 <li class="timeline-item">
                   <span class="timeline-date">{monthDay}</span>

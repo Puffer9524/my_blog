@@ -1,13 +1,9 @@
 ---
-import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
+import { getPublishedPosts } from '../utils/posts';
 
-const allPosts = await getCollection('posts');
-const posts = allPosts
-  .filter((p) => !p.data.draft)
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
-  .slice(0, 6);
+const posts = (await getPublishedPosts()).slice(0, 6);
 ---
 
 <Layout title="主页">

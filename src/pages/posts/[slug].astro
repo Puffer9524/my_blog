@@ -1,15 +1,16 @@
 ---
-import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import TableOfContents from '../../components/TableOfContents.astro';
+import { postCategoryLabels } from '../../config/categories';
+import { formatDate } from '../../utils/date';
+import { getPostSlug, getPublishedPosts } from '../../utils/posts';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts');
+  const posts = await getPublishedPosts();
   return posts
-    .filter((p) => !p.data.draft)
-    .map((p) => ({
-      params: { slug: p.id.replace(/\.md$/, '') },
-      props: { post: p },
+    .map((post) => ({
+      params: { slug: getPostSlug(post) },
+      props: { post },
     }));
 }
 
@@ -17,18 +18,7 @@ const { post } = Astro.props;
 const { Content, headings } = await post.render();
 const { title, description, date, category, tags } = post.data;
 
-const formattedDate = date.toLocaleDateString('zh-CN', {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-});
-
-const categoryMap: Record<string, string> = {
-  frontend: '前端开发',
-  backend: '后端技术',
-  tools: '工具分享',
-  life: '生活随笔',
-};
+const formattedDate = formatDate(date);
 ---
 
 <Layout title={title} description={description}>
@@ -38,7 +28,7 @@ const categoryMap: Record<string, string> = {
         <time datetime={date.toISOString()}>{formattedDate}</time>
         {category && (
           <span class="article-category">
-            {categoryMap[category] || category}
+            {postCategoryLabels[category]}
           </span>
         )}
       </div>
