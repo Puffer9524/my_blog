@@ -1,0 +1,30 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+
+const allPosts = await getCollection('posts');
+const posts = allPosts
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 6);
+---
+
+<Layout title="主页">
+  {posts.length === 0 ? (
+    <div class="card empty-card">
+      <p>📝 还没有文章，快去写第一篇吧～</p>
+    </div>
+  ) : (
+    posts.map((post) => <ArticleCard post={post} />)
+  )}
+</Layout>
+
+<style>
+  .empty-card {
+    text-align: center;
+    color: var(--color-text-muted);
+    padding: 40px 24px;
+    font-size: 15px;
+  }
+</style>

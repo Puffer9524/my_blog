@@ -1,0 +1,380 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+
+const items = await getCollection('life');
+const sortedItems = items.sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+
+// Extract categories with labels
+const categoryMap: Record<string, string> = {
+  music: '音乐',
+  movie: '电影',
+  reading: '阅读',
+  photography: '摄影',
+  travel: '旅行',
+  gaming: '游戏',
+  other: '其他',
+};
+
+// Get unique categories present in items, preserve order
+const catOrder = ['music', 'movie', 'reading', 'photography', 'travel', 'gaming', 'other'];
+const presentCats = catOrder.filter((c) =>
+  sortedItems.some((item) => item.data.category === c),
+);
+
+const allLabel = '全部';
+---
+
+<Layout title="生活">
+  <div class="life-page">
+    <!-- Category filter tabs -->
+    <div class="filter-bar card" id="filter-bar">
+      <button class="filter-tab active" data-cat="all">{allLabel}</button>
+      {presentCats.map((cat) => (
+        <button class="filter-tab" data-cat={cat}>
+          {categoryMap[cat] || cat}
+        </button>
+      ))}
+    </div>
+
+    <!-- Gallery grid -->
+    <div class="gallery" id="gallery">
+      {sortedItems.map((item) => {
+        const { title, description, image, category, link } = item.data;
+        return (
+          <article
+            class="gallery-card card"
+            data-category={category}
+          >
+            <div class="card-image-wrapper">
+              <img
+                src={image}
+                alt={title}
+                class="card-image"
+                loading="lazy"
+                width="400"
+                height="400"
+              />
+              <div class="card-image-overlay">
+                <button
+                  class="zoom-btn"
+                  data-full={image}
+                  data-title={title}
+                  aria-label={`放大查看 ${title}`}
+                >
+                  🔍
+                </button>
+                {link && (
+                  <a
+                    href={link}
+                    class="zoom-btn"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`打开 ${title} 链接`}
+                  >
+                    🔗
+                  </a>
+                )}
+              </div>
+            </div>
+            <div class="card-body">
+              <span class="card-cat">{categoryMap[category] || category}</span>
+              <h3 class="card-title">{title}</h3>
+              {description && <p class="card-desc">{description}</p>}
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightbox-close" aria-label="关闭">&times;</button>
+    <img class="lightbox-image" id="lightbox-image" src="" alt="" />
+    <p class="lightbox-title" id="lightbox-title"></p>
+  </div>
+</Layout>
+
+<style>
+  .life-page {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ===== Filter bar ===== */
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 14px;
+  }
+
+  .filter-tab {
+    padding: 5px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 50px;
+    background: none;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    transition: all 0.2s;
+  }
+
+  .filter-tab:hover {
+    color: var(--color-text);
+    background-color: var(--color-bg-hover);
+  }
+
+  .filter-tab.active {
+    color: #fff;
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  /* ===== Gallery grid ===== */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .gallery-card {
+    padding: 0;
+    overflow: hidden;
+    transition: box-shadow 0.25s, transform 0.25s;
+  }
+
+  .gallery-card:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+  }
+
+  .gallery-card.hidden {
+    display: none;
+  }
+
+  .card-image-wrapper {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--color-bg);
+  }
+
+  .card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s;
+  }
+
+  .gallery-card:hover .card-image {
+    transform: scale(1.05);
+  }
+
+  .card-image-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .gallery-card:hover .card-image-overlay {
+    opacity: 1;
+  }
+
+  .zoom-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    font-size: 16px;
+    text-decoration: none;
+    transition: transform 0.2s;
+    color: inherit;
+  }
+
+  .zoom-btn:hover {
+    transform: scale(1.1);
+  }
+
+  .card-body {
+    padding: 12px 14px;
+  }
+
+  .card-cat {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-accent);
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 3px;
+  }
+
+  .card-desc {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ===== Lightbox ===== */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    backdrop-filter: blur(8px);
+  }
+
+  .lightbox.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+  }
+
+  .lightbox-close:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  .lightbox-image {
+    max-width: 85vw;
+    max-height: 70vh;
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .lightbox-title {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    opacity: 0.8;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 640px) {
+    .gallery {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  // --- Category filter ---
+  const filterTabs = document.querySelectorAll('.filter-tab');
+  const galleryCards = document.querySelectorAll('.gallery-card');
+
+  filterTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const cat = (tab as HTMLElement).dataset.cat;
+
+      // Update active tab
+      filterTabs.forEach((t) => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      // Filter cards
+      galleryCards.forEach((card) => {
+        const cardCat = (card as HTMLElement).dataset.category;
+        if (cat === 'all' || cardCat === cat) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    });
+  });
+
+  // --- Lightbox ---
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImage = document.getElementById('lightbox-image') as HTMLImageElement;
+  const lightboxTitle = document.getElementById('lightbox-title');
+  const lightboxClose = document.getElementById('lightbox-close');
+
+  function openLightbox(src: string, title: string) {
+    if (lightboxImage && lightboxTitle && lightbox) {
+      lightboxImage.src = src;
+      lightboxImage.alt = title;
+      lightboxTitle.textContent = title;
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeLightbox() {
+    lightbox?.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Delegate zoom button clicks
+  document.getElementById('gallery')?.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const zoomBtn = target.closest('.zoom-btn') as HTMLElement;
+    if (!zoomBtn) return;
+
+    // Only handle 🔍 zoom buttons (not 🔗 links)
+    if (zoomBtn.tagName === 'A') return;
+
+    const src = zoomBtn.dataset.full;
+    const title = zoomBtn.dataset.title;
+    if (src && title) openLightbox(src, title);
+  });
+
+  lightboxClose?.addEventListener('click', closeLightbox);
+
+  lightbox?.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  // ESC to close
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+  });
+</script>

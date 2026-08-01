@@ -1,0 +1,77 @@
+---
+import { getCollection } from 'astro:content';
+
+interface CategoryDef {
+  name: string;
+  slug: string;
+}
+
+const categories: CategoryDef[] = [
+  { name: '前端开发', slug: 'frontend' },
+  { name: '后端技术', slug: 'backend' },
+  { name: '工具分享', slug: 'tools' },
+  { name: '生活随笔', slug: 'life' },
+];
+
+const allPosts = await getCollection('posts');
+const publishedPosts = allPosts.filter((p) => !p.data.draft);
+
+function countByCategory(slug: string): number {
+  return publishedPosts.filter((p) => p.data.category === slug).length;
+}
+---
+
+<div class="category-card card">
+  <h3 class="card-title">文章分类</h3>
+  <ul class="category-list">
+    {categories.map((cat) => (
+      <li>
+        <a href={`/category/${cat.slug}`} class="category-item">
+          <span class="category-name">{cat.name}</span>
+          <span class="category-count">{countByCategory(cat.slug)} 篇</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</div>
+
+<style>
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .category-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .category-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    background: var(--color-bg);
+    border: 1px solid transparent;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  }
+
+  .category-item:hover {
+    color: var(--color-text);
+    border-color: var(--color-border);
+    background: var(--color-bg-hover);
+  }
+
+  .category-count {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    background: var(--color-bg-card);
+    padding: 1px 7px;
+    border-radius: 10px;
+  }
+</style>

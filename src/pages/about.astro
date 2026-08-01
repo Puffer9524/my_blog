@@ -1,0 +1,59 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="关于">
+  <div class="card about-card">
+    <h1 class="about-title">关于我</h1>
+
+    <section class="about-section prose">
+      <h2>👋 我是谁</h2>
+      <p>这里写你的自我介绍。</p>
+    </section>
+
+    <section class="about-section prose">
+      <h2>💼 工作 / 学习</h2>
+      <p>这里写你的工作或学习经历。</p>
+    </section>
+
+    <section class="about-section prose">
+      <h2>🛠 技术栈</h2>
+      <ul>
+        <li>这里列你的技能</li>
+        <li>例如：JavaScript、Node.js、Python...</li>
+      </ul>
+    </section>
+
+    <section class="about-section prose">
+      <h2>📬 联系方式</h2>
+      <p>邮箱：your-email@example.com</p>
+      <p>GitHub：<a href="https://github.com/">@yourname</a></p>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .about-card {
+    padding: 32px 36px;
+  }
+
+  .about-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+
+  .about-section {
+    margin-bottom: 24px;
+  }
+
+  .about-section h2 {
+    font-size: 1.2em;
+  }
+
+  @media (max-width: 768px) {
+    .about-card {
+      padding: 18px;
+    }
+  }
+</style>

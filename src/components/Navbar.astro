@@ -1,0 +1,326 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+
+const navLinks = [
+  { href: '/', label: '主页' },
+  { href: '/archive', label: '归档' },
+  { href: '/life', label: '生活' },
+  { href: '/friends', label: '友链' },
+  { href: '/about', label: '关于' },
+];
+---
+
+<header class="navbar" id="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="brand">PufferSite</a>
+
+    <!-- Desktop nav -->
+    <nav class="nav-links" aria-label="Main navigation">
+      {navLinks.map((link) => (
+        <a href={link.href} class:list={['nav-link', { active: Astro.url?.pathname === link.href }]}>
+          {link.label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="nav-actions">
+      <div class="desktop-theme">
+        <ThemeToggle />
+      </div>
+
+      <!-- Hamburger button (visible on mobile) -->
+      <button class="hamburger" id="hamburger" aria-label="菜单" aria-expanded="false">
+        <span class="hamburger-line" />
+        <span class="hamburger-line" />
+        <span class="hamburger-line" />
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile dropdown -->
+  <div class="mobile-menu" id="mobile-menu">
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+      {navLinks.map((link) => (
+        <a href={link.href} class:list={['mobile-link', { active: Astro.url?.pathname === link.href }]}>
+          {link.label}
+        </a>
+      ))}
+    </nav>
+    <div class="mobile-theme">
+      <ThemeToggle />
+    </div>
+  </div>
+</header>
+
+<style>
+  .navbar {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    width: auto;
+    max-width: calc(var(--content-max-width) - 32px);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: 50px;
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(12px);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.2s,
+                border-radius 0.25s;
+    will-change: transform, opacity;
+  }
+
+  .navbar.hidden {
+    transform: translateX(-50%) translateY(-120%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .navbar.menu-open {
+    border-radius: 24px;
+  }
+
+  .navbar-inner {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
+  }
+
+  .brand {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.5px;
+    padding: 6px 14px;
+    border-radius: 50px;
+    flex-shrink: 0;
+    transition: color 0.2s;
+  }
+
+  .brand:hover {
+    color: var(--color-accent);
+  }
+
+  /* ===== Desktop nav links ===== */
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .nav-link {
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    transition: color 0.2s, background-color 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-link:hover {
+    color: var(--color-text);
+    background-color: var(--color-bg-hover);
+  }
+
+  .nav-link.active {
+    color: var(--color-accent);
+    background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    font-weight: 500;
+  }
+
+  /* ===== Actions ===== */
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .desktop-theme {
+    display: contents;
+  }
+
+  /* ===== Hamburger ===== */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    width: 36px;
+    height: 36px;
+    padding: 8px;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .hamburger:hover {
+    background-color: var(--color-bg-hover);
+  }
+
+  .hamburger-line {
+    display: block;
+    width: 18px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-text);
+    transition: transform 0.25s, opacity 0.25s;
+  }
+
+  /* Hamburger → X animation */
+  .menu-open .hamburger .hamburger-line:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+
+  .menu-open .hamburger .hamburger-line:nth-child(2) {
+    opacity: 0;
+  }
+
+  .menu-open .hamburger .hamburger-line:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  /* ===== Mobile dropdown menu ===== */
+  .mobile-menu {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 16px 16px;
+  }
+
+  .menu-open .mobile-menu {
+    display: flex;
+  }
+
+  .mobile-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mobile-link {
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    color: var(--color-text-secondary);
+    transition: background-color 0.15s, color 0.15s;
+  }
+
+  .mobile-link:hover {
+    background-color: var(--color-bg-hover);
+    color: var(--color-text);
+  }
+
+  .mobile-link.active {
+    color: var(--color-accent);
+    background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    font-weight: 500;
+  }
+
+  .mobile-theme {
+    padding-top: 6px;
+    border-top: 1px solid var(--color-divider);
+    display: flex;
+    justify-content: center;
+  }
+
+  .mobile-theme :global(.theme-dropdown) {
+    width: 100%;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 640px) {
+    .navbar {
+      top: 10px;
+      border-radius: 28px;
+    }
+
+    .navbar.menu-open {
+      border-radius: 20px;
+    }
+
+    .navbar-inner {
+      gap: 2px;
+      padding: 4px 4px;
+    }
+
+    .brand {
+      font-size: 15px;
+      padding: 5px 10px;
+    }
+
+    /* Hide desktop nav, show hamburger */
+    .nav-links {
+      display: none;
+    }
+
+    .desktop-theme {
+      display: none;
+    }
+
+    .hamburger {
+      display: flex;
+    }
+  }
+</style>
+
+<script>
+  // --- Scroll behavior ---
+  let lastScrollY = window.scrollY;
+  const navbar = document.getElementById('navbar');
+  let ticking = false;
+
+  function updateNavbar() {
+    const currentScrollY = window.scrollY;
+    if (currentScrollY < 60) {
+      navbar?.classList.remove('hidden');
+    } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      navbar?.classList.add('hidden');
+      // Close menu when hiding
+      navbar?.classList.remove('menu-open');
+      const hamburger = document.getElementById('hamburger');
+      if (hamburger) hamburger.setAttribute('aria-expanded', 'false');
+    } else if (currentScrollY < lastScrollY) {
+      navbar?.classList.remove('hidden');
+    }
+
+    lastScrollY = currentScrollY;
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(updateNavbar);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // --- Mobile menu toggle ---
+  const hamburger = document.getElementById('hamburger');
+  hamburger?.addEventListener('click', () => {
+    const isOpen = navbar?.classList.toggle('menu-open');
+    hamburger.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  // Close menu on link click
+  document.querySelectorAll('.mobile-link').forEach((link) => {
+    link.addEventListener('click', () => {
+      navbar?.classList.remove('menu-open');
+      hamburger?.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Close menu on outside click
+  document.addEventListener('click', (e) => {
+    if (!navbar?.contains(e.target as Node)) {
+      navbar?.classList.remove('menu-open');
+      hamburger?.setAttribute('aria-expanded', 'false');
+    }
+  });
+</script>

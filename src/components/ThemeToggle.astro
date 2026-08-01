@@ -1,0 +1,213 @@
+---
+// Theme dropdown: dark / light / system
+// Uses class-based selectors to support multiple instances on the same page
+---
+
+<div class="theme-dropdown">
+  <button class="theme-trigger" aria-label="切换主题" title="切换主题">
+    <span class="theme-icon"></span>
+    <span class="theme-arrow">▾</span>
+  </button>
+
+  <ul class="theme-menu" role="menu">
+    <li>
+      <button class="theme-option" data-theme="light" role="menuitem">
+        <span class="option-icon">☀️</span>
+        <span>浅色模式</span>
+        <span class="check">✓</span>
+      </button>
+    </li>
+    <li>
+      <button class="theme-option" data-theme="dark" role="menuitem">
+        <span class="option-icon">🌙</span>
+        <span>深色模式</span>
+        <span class="check">✓</span>
+      </button>
+    </li>
+    <li>
+      <button class="theme-option" data-theme="system" role="menuitem">
+        <span class="option-icon">💻</span>
+        <span>跟随系统</span>
+        <span class="check">✓</span>
+      </button>
+    </li>
+  </ul>
+</div>
+
+<style>
+  .theme-dropdown {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .theme-trigger {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 8px;
+    border: none;
+    border-radius: 50px;
+    background: none;
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+    transition: background-color 0.2s;
+  }
+
+  .theme-trigger:hover {
+    background-color: var(--color-bg-hover);
+  }
+
+  .theme-icon {
+    display: block;
+  }
+
+  .theme-arrow {
+    font-size: 10px;
+    color: var(--color-text-muted);
+    transition: transform 0.2s;
+  }
+
+  .theme-dropdown.open .theme-arrow {
+    transform: rotate(180deg);
+  }
+
+  .theme-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 150px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card-hover);
+    padding: 6px;
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 200;
+  }
+
+  .theme-dropdown.open .theme-menu {
+    display: flex;
+  }
+
+  .theme-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: none;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    transition: background-color 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+
+  .theme-option:hover {
+    background-color: var(--color-bg-hover);
+    color: var(--color-text);
+  }
+
+  .theme-option .check {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--color-accent);
+    display: none;
+  }
+
+  .theme-option.active .check {
+    display: inline;
+  }
+
+  .theme-option.active {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .option-icon {
+    font-size: 15px;
+  }
+</style>
+
+<script>
+  (function () {
+    const iconMap: Record<string, string> = { light: '☀️', dark: '🌙', system: '💻' };
+
+    function getThemeMode(): string {
+      return localStorage.getItem('theme-mode') || 'system';
+    }
+
+    function getResolvedTheme(): string {
+      const mode = getThemeMode();
+      if (mode === 'system') {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      return mode;
+    }
+
+    function applyTheme() {
+      const mode = getThemeMode();
+      document.documentElement.setAttribute('data-theme-mode', mode);
+      document.documentElement.setAttribute('data-theme', getResolvedTheme());
+      updateAllUI();
+    }
+
+    function setTheme(mode: string) {
+      localStorage.setItem('theme-mode', mode);
+      applyTheme();
+    }
+
+    function updateAllUI() {
+      const mode = getThemeMode();
+      document.querySelectorAll('.theme-dropdown').forEach((dropdown) => {
+        const icon = dropdown.querySelector('.theme-icon');
+        if (icon) icon.textContent = iconMap[mode] || '💻';
+
+        dropdown.querySelectorAll('.theme-option').forEach((btn) => {
+          const val = (btn as HTMLElement).dataset.theme;
+          btn.classList.toggle('active', val === mode);
+        });
+      });
+    }
+
+    // Init
+    applyTheme();
+
+    // Listen for system changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (getThemeMode() === 'system') applyTheme();
+    });
+
+    // Wire up all toggle instances
+    document.querySelectorAll('.theme-dropdown').forEach((dropdown) => {
+      const trigger = dropdown.querySelector('.theme-trigger');
+      trigger?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Close other open dropdowns
+        document.querySelectorAll('.theme-dropdown.open').forEach((d) => {
+          if (d !== dropdown) d.classList.remove('open');
+        });
+        dropdown.classList.toggle('open');
+      });
+
+      dropdown.querySelectorAll('.theme-option').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const mode = (btn as HTMLElement).dataset.theme;
+          if (mode) setTheme(mode);
+          dropdown.classList.remove('open');
+        });
+      });
+    });
+
+    // Close all on outside click
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.theme-dropdown.open').forEach((d) => d.classList.remove('open'));
+    });
+  })();
+</script>

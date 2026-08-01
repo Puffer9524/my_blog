@@ -1,0 +1,63 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts
+    .filter((p) => !p.data.draft)
+    .map((p) => ({
+      params: { slug: p.id.replace(/\.md$/, '') },
+      props: { post: p },
+    }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await post.render();
+const { title, description, date, category, tags } = post.data;
+
+const formattedDate = date.toLocaleDateString('zh-CN', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const categoryMap: Record<string, string> = {
+  frontend: '前端开发',
+  backend: '后端技术',
+  tools: '工具分享',
+  life: '生活随笔',
+};
+---
+
+<Layout title={title} description={description}>
+  <article class="card article-full">
+    <header class="article-header">
+      <div class="article-meta">
+        <time datetime={date.toISOString()}>{formattedDate}</time>
+        {category && (
+          <span class="article-category">
+            {categoryMap[category] || category}
+          </span>
+        )}
+      </div>
+
+      <h1 class="article-title">{title}</h1>
+
+      {tags.length > 0 && (
+        <div class="article-tags">
+          {tags.map((tag) => <span class="tag">#{tag}</span>)}
+        </div>
+      )}
+    </header>
+
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+
+  <div slot="right-sidebar">
+    <TableOfContents headings={headings} />
+  </div>
+</Layout>

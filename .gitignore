@@ -1,0 +1,17 @@
+# dist
+dist/
+
+# deps
+node_modules/
+
+# env
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Astro
+.astro/
