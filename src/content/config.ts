@@ -14,17 +14,31 @@ const postsCollection = defineCollection({
   }),
 });
 
+const lifeBaseSchema = z.object({
+  title: z.string(),
+  description: z.string().optional(),
+  image: z.string(),
+  link: z.string().optional(),
+  date: z.date(),
+});
+
 const lifeCollection = defineCollection({
   type: 'content',
-  schema: z.object({
-    title: z.string(),
-    description: z.string().optional(),
-    image: z.string(),
-    images: z.array(z.string()).min(1).optional(),
-    category: z.enum(LIFE_CATEGORY_SLUGS),
-    link: z.string().optional(),
-    date: z.date(),
-  }),
+  schema: z.discriminatedUnion('category', [
+    lifeBaseSchema.extend({
+      category: z.literal('photography'),
+      images: z.array(z.string()).min(1),
+    }),
+    lifeBaseSchema.extend({
+      category: z.enum(
+        LIFE_CATEGORY_SLUGS.filter((category) => category !== 'photography') as [
+          Exclude<(typeof LIFE_CATEGORY_SLUGS)[number], 'photography'>,
+          ...Exclude<(typeof LIFE_CATEGORY_SLUGS)[number], 'photography'>[],
+        ],
+      ),
+      images: z.never().optional(),
+    }),
+  ]),
 });
 
 const aboutCollection = defineCollection({

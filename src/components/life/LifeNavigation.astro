@@ -1,0 +1,91 @@
+---
+import {
+  FEATURED_LIFE_CATEGORY_SLUGS,
+  lifeCategoryLabels,
+} from '../../config/categories';
+
+const activeCategory = FEATURED_LIFE_CATEGORY_SLUGS[0];
+---
+
+<nav class="life-nav card" aria-label="生活分类" data-life-navigation>
+  {FEATURED_LIFE_CATEGORY_SLUGS.map((category) => (
+    <button
+      class:list={['life-nav-item', { active: category === activeCategory }]}
+      type="button"
+      data-category={category}
+      aria-pressed={category === activeCategory ? 'true' : 'false'}
+    >
+      {lifeCategoryLabels[category]}
+    </button>
+  ))}
+</nav>
+
+<style>
+  .life-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+  }
+
+  .life-nav-item {
+    padding: 6px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 50px;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+  }
+
+  .life-nav-item:hover {
+    color: var(--color-text);
+    background: var(--color-bg-hover);
+  }
+
+  .life-nav-item.active {
+    color: #fff;
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+  }
+
+  @media (max-width: 640px) {
+    .life-nav {
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .life-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .life-nav-item {
+      flex: 0 0 auto;
+    }
+  }
+</style>
+
+<script>
+  const navigation = document.querySelector<HTMLElement>('[data-life-navigation]');
+  const navItems = navigation?.querySelectorAll<HTMLButtonElement>('.life-nav-item');
+  const sections = document.querySelectorAll<HTMLElement>('[data-life-section]');
+
+  navItems?.forEach((item) => {
+    item.addEventListener('click', () => {
+      const category = (item as HTMLElement).dataset.category;
+
+      navItems.forEach((navItem) => {
+        const active = navItem === item;
+        navItem.classList.toggle('active', active);
+        navItem.setAttribute('aria-pressed', String(active));
+      });
+
+      sections.forEach((section) => {
+        const matches = (section as HTMLElement).dataset.category === category;
+        section.classList.toggle('hidden', !matches);
+      });
+    });
+  });
+</script>

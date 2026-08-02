@@ -18,7 +18,7 @@
 
   /* Layout */
   --content-max-width: 1180px;
-  --sidebar-width: 260px;
+  --sidebar-width: 280px;
   --toc-width: 200px;
   --gap: 24px;
 
@@ -61,6 +61,7 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 100px;
+  background-color: var(--color-bg);
 }
 
 body {
@@ -95,6 +96,13 @@ ul, ol {
   grid-template-columns: var(--sidebar-width) 1fr;
   gap: var(--gap);
   align-items: start;
+}
+
+.page-wrapper.with-home-cover {
+  padding-top: 0;
+  margin-top: -64px;
+  position: relative;
+  z-index: 2;
 }
 
 /* Three-column: with right sidebar (TOC) */

@@ -1,0 +1,107 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { lifeCategoryLabels, type FeaturedLifeCategory } from '../../config/categories';
+import ArticleCard from '../ArticleCard.astro';
+import LifeMediaCard from './LifeMediaCard.astro';
+import PhotoAlbum from './PhotoAlbum.astro';
+
+export interface Props {
+  category: FeaturedLifeCategory;
+  items: CollectionEntry<'life'>[];
+  posts: CollectionEntry<'posts'>[];
+  active?: boolean;
+}
+
+const { category, items, posts, active = false } = Astro.props;
+const label = lifeCategoryLabels[category];
+---
+
+<section
+  class:list={['life-section', { hidden: !active }]}
+  data-life-section
+  data-category={category}
+>
+  {items.length > 0 && (
+    <div class:list={['gallery', { 'photo-gallery': category === 'photography' }]}>
+      {items.map((item) => (
+        category === 'photography'
+          ? <PhotoAlbum album={item} />
+          : <LifeMediaCard item={item} />
+      ))}
+    </div>
+  )}
+
+  {items.length === 0 && posts.length === 0 && (
+    <div class="empty-category card">暂无{label}内容</div>
+  )}
+
+  {posts.length > 0 && (
+    <div class="related-posts">
+      <h3>相关文章</h3>
+      <div class="related-post-list">
+        {posts.map((post) => <ArticleCard post={post} />)}
+      </div>
+    </div>
+  )}
+</section>
+
+<style>
+  .life-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .life-section.hidden {
+    display: none;
+  }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .related-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .related-posts h3 {
+    padding-left: 4px;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .related-post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .empty-category {
+    padding: 32px 20px;
+    color: var(--color-text-muted);
+    font-size: 13px;
+    text-align: center;
+  }
+
+  @media (max-width: 1200px) {
+    .gallery { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 900px) {
+    .gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 640px) {
+    .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 380px) {
+    .gallery { grid-template-columns: 1fr; }
+  }
+</style>
