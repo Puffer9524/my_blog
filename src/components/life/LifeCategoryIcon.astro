@@ -1,0 +1,60 @@
+---
+import type { FeaturedLifeCategory } from '../../config/categories';
+
+interface Props {
+  category: FeaturedLifeCategory;
+}
+
+const { category } = Astro.props;
+---
+
+<svg
+  class="category-icon"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.8"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+>
+  {category === 'music' && (
+    <>
+      <path d="M9 18V5l10-2v13" />
+      <ellipse cx="6" cy="18" rx="3" ry="2.2" />
+      <ellipse cx="16" cy="16" rx="3" ry="2.2" />
+    </>
+  )}
+
+  {category === 'photography' && (
+    <>
+      <path d="M4 7h3l1.4-2h7.2L17 7h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z" />
+      <circle cx="12" cy="13" r="4" />
+    </>
+  )}
+
+  {category === 'gaming' && (
+    <>
+      <path d="M8.5 8h7a5.5 5.5 0 0 1 5.2 7.3l-.8 2.3a2.5 2.5 0 0 1-4.1 1l-1.4-1.3H9.6l-1.4 1.3a2.5 2.5 0 0 1-4.1-1l-.8-2.3A5.5 5.5 0 0 1 8.5 8Z" />
+      <path d="M7 11v4M5 13h4" />
+      <circle cx="16.5" cy="12" r=".7" fill="currentColor" stroke="none" />
+      <circle cx="18.5" cy="14" r=".7" fill="currentColor" stroke="none" />
+    </>
+  )}
+
+  {category === 'anime' && (
+    <>
+      <rect x="3" y="5" width="18" height="15" rx="3" />
+      <path d="m8 2 4 3 4-3" />
+      <path d="m10 10 5 3-5 3v-6Z" />
+    </>
+  )}
+</svg>
+
+<style>
+  .category-icon {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+  }
+</style>

@@ -3,6 +3,7 @@ import {
   FEATURED_LIFE_CATEGORY_SLUGS,
   lifeCategoryLabels,
 } from '../../config/categories';
+import LifeCategoryIcon from './LifeCategoryIcon.astro';
 
 const activeCategory = FEATURED_LIFE_CATEGORY_SLUGS[0];
 ---
@@ -15,46 +16,97 @@ const activeCategory = FEATURED_LIFE_CATEGORY_SLUGS[0];
       data-category={category}
       aria-pressed={category === activeCategory ? 'true' : 'false'}
     >
-      {lifeCategoryLabels[category]}
+      <span class="icon-shell">
+        <LifeCategoryIcon category={category} />
+      </span>
+      <span class="nav-label">{lifeCategoryLabels[category]}</span>
     </button>
   ))}
 </nav>
 
 <style>
   .life-nav {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     align-items: center;
-    gap: 6px;
-    padding: 10px 14px;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 18px;
   }
 
   .life-nav-item {
-    padding: 6px 16px;
-    border: 1px solid var(--color-border);
-    border-radius: 50px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-width: 0;
+    min-height: 54px;
+    padding: 7px 14px;
+    border: 1px solid transparent;
+    border-radius: 13px;
     background: transparent;
     color: var(--color-text-secondary);
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
-    transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+    outline: none;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .icon-shell {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border-radius: 10px;
+    background: var(--color-bg-hover);
+    color: var(--color-text-secondary);
+    transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
   }
 
   .life-nav-item:hover {
     color: var(--color-text);
     background: var(--color-bg-hover);
+    transform: translateY(-1px);
+  }
+
+  .life-nav-item:hover .icon-shell {
+    color: var(--color-accent);
+    background: var(--color-bg-card);
+    transform: scale(1.04);
+  }
+
+  .life-nav-item:focus-visible {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 24%, transparent);
   }
 
   .life-nav-item.active {
+    color: var(--color-accent);
+    border-color: color-mix(in srgb, var(--color-accent) 24%, var(--color-border));
+    background: color-mix(in srgb, var(--color-accent) 10%, var(--color-bg-card));
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--color-accent) 12%, transparent);
+  }
+
+  .life-nav-item.active .icon-shell {
     color: #fff;
-    border-color: var(--color-accent);
     background: var(--color-accent);
+    box-shadow: 0 4px 10px color-mix(in srgb, var(--color-accent) 28%, transparent);
   }
 
   @media (max-width: 640px) {
     .life-nav {
+      display: flex;
       overflow-x: auto;
+      padding: 7px;
       scrollbar-width: none;
+      scroll-snap-type: x proximity;
     }
 
     .life-nav::-webkit-scrollbar {
@@ -63,6 +115,22 @@ const activeCategory = FEATURED_LIFE_CATEGORY_SLUGS[0];
 
     .life-nav-item {
       flex: 0 0 auto;
+      min-width: 112px;
+      min-height: 50px;
+      padding: 6px 12px;
+      scroll-snap-align: start;
+    }
+
+    .icon-shell {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .life-nav-item,
+    .icon-shell {
+      transition: none;
     }
   }
 </style>

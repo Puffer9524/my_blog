@@ -3,7 +3,7 @@ export const siteConfig = {
   description: '记录学习与思考,也是情绪输出和分享的窗口。',
   language: 'zh-CN',
   homeCover: {
-    image: '/home-cover.svg',
+    image: 'public/life/photo1.jpeg',
     alt: '山间落日封面',
     position: 'center center',
   },

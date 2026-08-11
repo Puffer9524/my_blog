@@ -6,6 +6,8 @@ const postsCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
+    cover: z.string().optional(),
+    coverAlt: z.string().optional(),
     date: z.date(),
     updated: z.date().optional(),
     category: z.enum(POST_CATEGORY_SLUGS).optional(),
