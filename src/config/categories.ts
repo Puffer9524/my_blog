@@ -1,17 +1,20 @@
 export const POST_CATEGORY_SLUGS = [
-  'frontend',
-  'backend',
-  'tools',
-  'life',
+  //添加分类//
+  'theme1',
+  'theme2',
+  'theme3',
+  'theme4',
+
 ] as const;
 
 export type PostCategory = (typeof POST_CATEGORY_SLUGS)[number];
 
 export const postCategoryLabels: Record<PostCategory, string> = {
-  frontend: '前端开发',
-  backend: '后端技术',
-  tools: '工具分享',
-  life: '生活随笔',
+  //注释分类//
+  theme1: '开篇',
+  theme2: '论文重读',
+  theme3: 'agent学习',
+  theme4: '杂谈',
 };
 
 export const postCategories = POST_CATEGORY_SLUGS.map((slug) => ({

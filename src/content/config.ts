@@ -6,8 +6,8 @@ const postsCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
-    cover: z.string().optional(),
-    coverAlt: z.string().optional(),
+    cover: z.string().optional(),//封面图片//
+    coverAlt: z.string().optional(),//封面图片的 alt 属性文本（图片加载失败时的占位文字）
     date: z.date(),
     updated: z.date().optional(),
     category: z.enum(POST_CATEGORY_SLUGS).optional(),
