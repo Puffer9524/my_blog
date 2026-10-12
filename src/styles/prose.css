@@ -1,0 +1,417 @@
+/* =====================================================================
+ * prose.css — 文章正文（Markdown 渲染结果）样式
+ * ---------------------------------------------------------------------
+ * 使用说明：
+ *   1. 本文件只负责文章内容（.prose）的排版，不含页面布局/卡片/导航。
+ *   2. 每个区块顶部注释标出对应的 Markdown 语法，方便按需定位修改。
+ *   3. 常用可调参数集中在顶部「排版变量」区，改一处全局生效。
+ *   4. 颜色沿用 global.css 的设计变量（--color-*），自动适配深色模式。
+ *   5. 自定义指令语法（由 src/plugins/remark-directives.mjs 渲染）：
+ *        :::note[标题] / :::tip / :::warning / :::danger / :::info / :::success
+ *        :span[文字]{.class} —— 带 class 的内联元素
+ * ===================================================================== */
+
+/* ===== 排版变量（可调） ===== */
+.prose {
+  --prose-font-size: 1.03em;
+  --prose-line-height: 1.9;
+  --prose-paragraph-spacing: 1.15em;
+  --prose-heading-margin-top: 2em;
+  --prose-heading-margin-bottom: 0.65em;
+  --prose-code-font-size: 0.86em;
+
+  /* 标题字号 */
+  --prose-h1-size: 1.75em;
+  --prose-h2-size: 1.42em;
+  --prose-h3-size: 1.2em;
+  --prose-h4-size: 1.08em;
+  --prose-h5-size: 1em;
+  --prose-h6-size: 0.92em;
+
+  line-height: var(--prose-line-height);
+  word-break: break-word;
+  font-size: var(--prose-font-size);
+  color: var(--color-text);
+}
+
+/* ===== 标题：`#` ~ `######` ===== */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  margin-top: var(--prose-heading-margin-top);
+  margin-bottom: var(--prose-heading-margin-bottom);
+  font-weight: 650;
+  line-height: 1.35;
+  scroll-margin-top: 100px;
+  letter-spacing: 0.02em;
+}
+
+.prose h1 { font-size: var(--prose-h1-size); }
+
+.prose h2 {
+  font-size: var(--prose-h2-size);
+  padding-bottom: 0.4em;
+  border-bottom: 2px solid var(--color-accent);
+}
+
+.prose h3 {
+  font-size: var(--prose-h3-size);
+  padding-left: 0.75em;
+  border-left: 3.5px solid var(--color-accent);
+  border-radius: 0 2px 2px 0;
+}
+
+.prose h4 {
+  font-size: var(--prose-h4-size);
+  padding-left: 0.4em;
+  border-left: 2.5px solid var(--color-text-muted);
+}
+
+.prose h5 { font-size: var(--prose-h5-size); color: var(--color-text-secondary); }
+
+.prose h6 {
+  font-size: var(--prose-h6-size);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ===== 段落 ===== */
+.prose p {
+  margin-bottom: var(--prose-paragraph-spacing);
+}
+
+/* ===== 链接：`[文字](url)` ===== */
+.prose a {
+  color: var(--color-accent);
+  text-decoration: none;
+  background-image: linear-gradient(var(--color-accent), var(--color-accent));
+  background-size: 0% 1.5px;
+  background-position: 0% 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.25s ease, color 0.2s;
+}
+
+.prose a:hover {
+  background-size: 100% 1.5px;
+  color: var(--color-accent-hover);
+}
+
+/* ===== 行内文字：加粗 / 斜体 / 删除线 / 高亮 / 键盘键 ===== */
+/* 语法：`**加粗**` `*斜体*` `~~删除~~`；高亮用 :span[文字]{.highlight}；`<kbd>键</kbd>` */
+.prose strong { font-weight: 650; color: var(--color-text); }
+
+.prose em { font-style: italic; }
+
+.prose del { color: var(--color-text-muted); text-decoration: line-through; }
+
+.prose mark {
+  background: var(--color-highlight);
+  color: var(--color-highlight-text);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.prose kbd {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  padding: 2px 7px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: var(--color-bg);
+  box-shadow: 0 1px 0 var(--color-border);
+  line-height: 1.4;
+  vertical-align: 0.05em;
+}
+
+/* ===== 列表：`-` / `1.`（含嵌套） ===== */
+.prose ul,
+.prose ol {
+  padding-left: 1.8em;
+  margin-bottom: var(--prose-paragraph-spacing);
+}
+
+.prose ul { list-style: disc; }
+.prose ol { list-style: decimal; }
+
+.prose li { margin-bottom: 0.35em; }
+
+.prose li > ul,
+.prose li > ol {
+  margin-top: 0.35em;
+  margin-bottom: 0;
+}
+
+.prose li::marker { color: var(--color-text-muted); }
+
+/* ===== 引用块：`> 文字` ===== */
+.prose blockquote {
+  border-left: 4px solid var(--color-accent);
+  padding: 0.8em 1.15em;
+  margin: 1.25em 0;
+  color: var(--color-text-secondary);
+  background: var(--color-bg);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.prose blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* ===== 行内代码：`` `code` `` ===== */
+.prose code {
+  font-family: var(--font-mono);
+  font-size: var(--prose-code-font-size);
+  background: var(--color-bg);
+  padding: 2px 7px;
+  border-radius: 5px;
+  border: 1px solid var(--color-border);
+}
+
+/* ===== 代码块：``` ``` ===== */
+.prose pre {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 40px 20px 18px;
+  margin: 1.3em 0;
+  overflow-x: auto;
+  font-size: 0.88em;
+  line-height: 1.65;
+  position: relative;
+}
+
+/* macOS 风格红黄绿圆点 */
+.prose pre::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 18px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #ff5f56;
+  box-shadow:
+    18px 0 0 #ffbd2e,
+    36px 0 0 #27c93f;
+}
+
+.prose pre code {
+  background: none;
+  padding: 0;
+  border: none;
+  font-size: inherit;
+}
+
+/* ===== 表格（GFM） ===== */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  font-size: 0.94em;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.prose thead { background: var(--color-table-header); }
+
+.prose th {
+  padding: 11px 15px;
+  text-align: left;
+  font-weight: 650;
+  border: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.prose td {
+  padding: 9px 15px;
+  border: 1px solid var(--color-border);
+}
+
+.prose tbody tr:nth-child(even) { background: var(--color-table-stripe); }
+
+.prose tbody tr:hover { background: var(--color-bg-hover); }
+
+/* ===== 图片与配图：`![alt](url)` ===== */
+.prose img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  margin: 1.5em auto;
+  box-shadow: var(--shadow-card);
+}
+
+.prose figure {
+  margin: 1.5em 0;
+  text-align: center;
+}
+
+.prose figure img { margin-bottom: 0.5em; }
+
+.prose figcaption {
+  font-size: 0.88em;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-top: 0.4em;
+}
+
+/* ===== 分割线：`---` ===== */
+.prose hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-border) 20%,
+    var(--color-border) 80%,
+    transparent
+  );
+  margin: 2.5em 0;
+}
+
+/* ===== 任务列表（GFM）：`- [ ]` / `- [x]` ===== */
+.prose ul:has(input[type="checkbox"]) {
+  list-style: none;
+  padding-left: 0.4em;
+}
+
+.prose input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 4px;
+  margin-right: 8px;
+  vertical-align: -0.15em;
+  cursor: default;
+  background: var(--color-bg-card);
+  position: relative;
+}
+
+.prose input[type="checkbox"]:checked {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.prose input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 7px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* ===== 折叠块：<details><summary> ===== */
+.prose details {
+  margin: 1.15em 0;
+  padding: 0.8em 1em;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+}
+
+.prose summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-accent);
+  user-select: none;
+}
+
+.prose summary:hover { color: var(--color-accent-hover); }
+
+.prose details[open] summary { margin-bottom: 0.6em; }
+
+/* ===== Callout 提示块：:::note[标题] / :::tip / :::warning / :::danger ===== */
+.prose .callout {
+  border: 1px solid;
+  border-left-width: 4px;
+  border-radius: var(--radius-sm);
+  padding: 0.9em 1.1em;
+  margin: 1.4em 0;
+  background: var(--color-callout-note-bg);
+  border-color: var(--color-callout-note-border);
+}
+
+.prose .callout-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-weight: 650;
+  margin-bottom: 0.4em;
+  line-height: 1.4;
+}
+
+/* 各类型配色（颜色变量定义于 global.css） */
+.prose .callout-note { background: var(--color-callout-note-bg); border-color: var(--color-callout-note-border); }
+.prose .callout-tip { background: var(--color-callout-tip-bg); border-color: var(--color-callout-tip-border); }
+.prose .callout-warning { background: var(--color-callout-warning-bg); border-color: var(--color-callout-warning-border); }
+.prose .callout-danger { background: var(--color-callout-danger-bg); border-color: var(--color-callout-danger-border); }
+
+/* 标题前的图标 */
+.prose .callout-note .callout-title::before { content: '💡'; }
+.prose .callout-tip .callout-title::before { content: '✨'; }
+.prose .callout-warning .callout-title::before { content: '⚠️'; }
+.prose .callout-danger .callout-title::before { content: '🚨'; }
+
+.prose .callout > :last-child { margin-bottom: 0; }
+
+/* ===== 行内指令常用 class：:span[文字]{.class}（可自行扩展） ===== */
+.prose .highlight {
+  background: var(--color-highlight);
+  color: var(--color-highlight-text);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.prose .underline {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose .strike {
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+
+/* ===== 首尾元素间距修正 ===== */
+.prose > :first-child { margin-top: 0; }
+.prose > :last-child { margin-bottom: 0; }
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .prose {
+    font-size: 0.98em;
+    line-height: 1.8;
+  }
+
+  .prose h1 { font-size: 1.45em; }
+  .prose h2 { font-size: 1.25em; }
+  .prose h3 { font-size: 1.1em; }
+
+  .prose pre {
+    margin-left: -18px;
+    margin-right: -18px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    font-size: 0.82em;
+    padding: 36px 14px 14px;
+  }
+
+  .prose table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

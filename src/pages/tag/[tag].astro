@@ -1,6 +1,7 @@
 ---
 import PostTimeline from '../../components/PostTimeline.astro';
 import Layout from '../../layouts/Layout.astro';
+import ArticleTags from '../../components/ArticleTags.astro';
 import { getPublishedPosts } from '../../utils/posts';
 
 export async function getStaticPaths() {
@@ -14,22 +15,28 @@ export async function getStaticPaths() {
     props: {
       tag,
       posts: posts.filter((post) => post.data.tags.includes(tag)),
+      tags,
     },
   }));
 }
 
 interface Props {
   tag: string;
+  tags: string[];
   posts: Awaited<ReturnType<typeof getPublishedPosts>>;
 }
 
-const { tag, posts } = Astro.props as Props;
+const { tag, posts, tags } = Astro.props as Props;
 ---
 
 <Layout title={`#${tag}`} description={`标签 ${tag} 下的文章`}>
   <div class="card tag-page-card">
     <h1>#{tag}</h1>
     <p>共 {posts.length} 篇文章</p>
+    <div class="tag-filters">
+      <a href="/archive" class="clear-filter">全部文章</a>
+      <ArticleTags tags={tags} activeTag={tag} />
+    </div>
     <PostTimeline posts={posts} />
   </div>
 </Layout>
@@ -48,7 +55,22 @@ const { tag, posts } = Astro.props as Props;
   .tag-page-card > p {
     color: var(--color-text-muted);
     font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .tag-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
     margin-bottom: 28px;
+  }
+
+  .clear-filter {
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   @media (max-width: 768px) {

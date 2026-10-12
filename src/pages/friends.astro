@@ -17,10 +17,11 @@ import { friends } from '../data/friends';
         </div>
       ) : (
         <div class="friends-grid">
-          {friends.map((f) => (
+          {friends.map((f, index) => (
             <a
               href={f.url}
               class="friend-card card"
+              id={`friend-${index}`}
               target="_blank"
               rel="noopener noreferrer"
             >

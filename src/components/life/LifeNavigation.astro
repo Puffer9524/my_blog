@@ -140,20 +140,38 @@ const activeCategory = FEATURED_LIFE_CATEGORY_SLUGS[0];
   const navItems = navigation?.querySelectorAll<HTMLButtonElement>('.life-nav-item');
   const sections = document.querySelectorAll<HTMLElement>('[data-life-section]');
 
-  navItems?.forEach((item) => {
-    item.addEventListener('click', () => {
-      const category = (item as HTMLElement).dataset.category;
-
-      navItems.forEach((navItem) => {
-        const active = navItem === item;
-        navItem.classList.toggle('active', active);
-        navItem.setAttribute('aria-pressed', String(active));
-      });
-
-      sections.forEach((section) => {
-        const matches = (section as HTMLElement).dataset.category === category;
-        section.classList.toggle('hidden', !matches);
-      });
+  function selectCategory(category: string | undefined) {
+    if (!Array.from(sections).some((section) => section.dataset.category === category)) return;
+    navItems?.forEach((item) => {
+      const active = item.dataset.category === category;
+      item.classList.toggle('active', active);
+      item.setAttribute('aria-pressed', String(active));
     });
-  });
+    sections.forEach((section) => {
+      section.classList.toggle('hidden', section.dataset.category !== category);
+    });
+  }
+
+  function restoreLocation() {
+    let target: HTMLElement | null = null;
+    try { target = document.getElementById(decodeURIComponent(location.hash.slice(1))); } catch { /* Ignore malformed hashes. */ }
+    const category = target?.closest<HTMLElement>('[data-life-section]')?.dataset.category
+      ?? new URLSearchParams(location.search).get('category')
+      ?? navItems?.[0]?.dataset.category;
+    selectCategory(category);
+    if (target) requestAnimationFrame(() => target.scrollIntoView({ block: 'center' }));
+  }
+
+  navItems?.forEach((item) => item.addEventListener('click', () => {
+    const category = item.dataset.category;
+    selectCategory(category);
+    const url = new URL(location.href);
+    url.searchParams.set('category', category ?? '');
+    url.hash = '';
+    history.replaceState(null, '', url);
+  }));
+
+  window.addEventListener('popstate', restoreLocation);
+  window.addEventListener('hashchange', restoreLocation);
+  restoreLocation();
 </script>

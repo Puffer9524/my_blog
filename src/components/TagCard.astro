@@ -1,11 +1,12 @@
 ---
 import { getPublishedPosts } from '../utils/posts';
+import { getTagHref } from '../utils/tags';
 
 const posts = await getPublishedPosts();
 const tagCounts = new Map<string, number>();
 
 for (const post of posts) {
-  for (const tag of post.data.tags) {
+  for (const tag of new Set(post.data.tags)) {
     tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
   }
 }
@@ -21,7 +22,7 @@ const tags = Array.from(tagCounts, ([name, count]) => ({ name, count }))
       <ul class="tag-list">
         {tags.map((tag) => (
           <li>
-            <a href={`/tag/${encodeURIComponent(tag.name)}`} class="tag-item">
+            <a href={getTagHref(tag.name)} class="tag-item" aria-current={Astro.url.pathname.replace(/\/$/, '') === getTagHref(tag.name) ? 'page' : undefined}>
               <span>#{tag.name}</span>
               <span class="tag-count">{tag.count}</span>
             </a>
@@ -57,10 +58,16 @@ const tags = Array.from(tagCounts, ([name, count]) => ({ name, count }))
     transition: color 0.2s, border-color 0.2s, background-color 0.2s;
   }
 
-  .tag-item:hover {
+  .tag-item:hover,
+  .tag-item[aria-current='page'] {
     color: var(--color-accent);
     border-color: var(--color-accent);
     background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+  }
+
+  .tag-item:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
   }
 
   .tag-count {

@@ -6,7 +6,7 @@ import { getPublishedPosts } from '../utils/posts';
 const posts = (await getPublishedPosts()).slice(0, 6);
 ---
 
-<Layout title="主页">
+<Layout title="主页" homeIntro>
   {posts.length === 0 ? (
     <div class="card empty-card">
       <p>📝 还没有文章，快去写第一篇吧～</p>

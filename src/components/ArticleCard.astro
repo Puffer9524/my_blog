@@ -3,6 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 import { postCategoryLabels } from '../config/categories';
 import { formatDate } from '../utils/date';
 import { getPostSlug } from '../utils/posts';
+import ArticleTags from './ArticleTags.astro';
 
 export interface Props {
   post: CollectionEntry<'posts'>;
@@ -17,7 +18,7 @@ const coverSrc = cover ?? '/home-cover.svg';
 ---
 
 <article class:list={['article-card', 'card', { compact }]}>
-  <a href={`/posts/${slug}`} class="article-link">
+  <div class="article-link">
     <div class="article-content">
       <div class="article-meta">
         <time class="article-date" datetime={date.toISOString()}>
@@ -30,19 +31,13 @@ const coverSrc = cover ?? '/home-cover.svg';
         )}
       </div>
 
-      <h2 class="article-title">{title}</h2>
+      <h2 class="article-title"><a class="article-title-link" href={`/posts/${slug}`}>{title}</a></h2>
 
       {description && (
         <p class="article-desc">{description}</p>
       )}
 
-      {tags.length > 0 && (
-        <div class="article-tags">
-          {tags.map((tag) => (
-            <span class="tag">#{tag}</span>
-          ))}
-        </div>
-      )}
+      <ArticleTags tags={tags} />
     </div>
 
     <figure class="article-cover">
@@ -53,11 +48,12 @@ const coverSrc = cover ?? '/home-cover.svg';
         decoding="async"
       />
     </figure>
-  </a>
+  </div>
 </article>
 
 <style>
   .article-card {
+    position: relative;
     padding: 0;
     overflow: hidden;
     transition: box-shadow 0.2s, transform 0.2s;
@@ -117,6 +113,23 @@ const coverSrc = cover ?? '/home-cover.svg';
     color: var(--color-accent);
   }
 
+  /* Keep the card clickable, with tag links above the stretched title link. */
+  .article-title-link::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+  }
+
+  .article-title-link:focus-visible {
+    outline: none;
+  }
+
+  .article-title-link:focus-visible::after {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -3px;
+    border-radius: var(--radius-lg);
+  }
+
   .article-desc {
     font-size: 14px;
     color: var(--color-text-secondary);
@@ -128,24 +141,8 @@ const coverSrc = cover ?? '/home-cover.svg';
     overflow: hidden;
   }
 
-  .article-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: auto;
-  }
-
-  .tag {
-    font-size: 12px;
-    color: var(--color-text-muted);
-    transition: color 0.2s;
-  }
-
-  .tag:hover {
-    color: var(--color-text-secondary);
-  }
-
   .article-cover {
+    pointer-events: none;
     position: relative;
     min-height: 138px;
     overflow: hidden;
@@ -217,14 +214,6 @@ const coverSrc = cover ?? '/home-cover.svg';
     font-size: 11px;
     line-height: 1.5;
     margin-bottom: 9px;
-  }
-
-  .compact .article-tags {
-    gap: 4px;
-  }
-
-  .compact .tag {
-    font-size: 10px;
   }
 
   @media (max-width: 640px) {

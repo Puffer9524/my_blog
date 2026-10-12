@@ -7,6 +7,12 @@ export const siteConfig = {
     alt: '图片',
     position: 'center center',
   },
+  intro: {
+    title: '你好，我是 Puffer',
+    subtitle: '记录生活、技术与成长。',
+    typeSpeed: 90,
+    startDelay: 400,
+  },
   author: {
     name: 'Puffer',
     avatar: '/cat.png',

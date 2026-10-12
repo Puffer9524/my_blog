@@ -1,0 +1,258 @@
+---
+import { siteConfig } from '../config/site';
+
+const { title, subtitle, typeSpeed, startDelay } = siteConfig.intro;
+const { image, alt, position } = siteConfig.homeCover;
+---
+
+<section
+  class="hero-intro"
+  id="hero-intro"
+  data-type-speed={typeSpeed}
+  data-start-delay={startDelay}
+>
+  <img
+    class="hero-bg"
+    src={image}
+    alt={alt}
+    style={`object-position: ${position}`}
+    fetchpriority="high"
+    decoding="async"
+  />
+  <div class="hero-overlay" aria-hidden="true"></div>
+
+  <div class="hero-inner">
+    <h1 class="hero-title">
+      <span class="hero-title-text" id="hero-title-text">{title}</span>
+      <span class="hero-caret" aria-hidden="true"></span>
+    </h1>
+    <p class="hero-subtitle" id="hero-subtitle">{subtitle}</p>
+  </div>
+
+  <button class="scroll-hint" id="scroll-hint" type="button" aria-label="向下滚动进入主页">
+    <span class="scroll-hint-text">向下滚动</span>
+    <svg class="scroll-hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+      <path d="m6 9 6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  </button>
+</section>
+
+<style>
+  .hero-intro {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    z-index: 0;
+    background: #0b1220;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scale(calc(1 + 0.08 * var(--intro-progress, 0)));
+    will-change: transform;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(2, 6, 23, 0.25) 0%,
+      rgba(2, 6, 23, 0.18) 45%,
+      rgba(2, 6, 23, 0.6) 100%
+    );
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 0 24px;
+    text-align: center;
+    opacity: calc(1 - var(--intro-progress, 0) * 1.15);
+    transform: translateY(calc(var(--intro-progress, 0) * -60px));
+    will-change: opacity, transform;
+  }
+
+  .hero-title {
+    margin: 0;
+    font-size: clamp(2.2rem, 7vw, 4.6rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: 0.02em;
+    color: #fff;
+    text-shadow: 0 4px 28px rgba(0, 0, 0, 0.4);
+  }
+
+  .hero-caret {
+    display: inline-block;
+    width: 0.06em;
+    height: 0.9em;
+    margin-left: 0.08em;
+    background: currentColor;
+    vertical-align: -0.04em;
+    animation: caret-blink 1s steps(1) infinite;
+  }
+
+  .hero-caret.done {
+    animation: none;
+    opacity: 0;
+  }
+
+  .hero-subtitle {
+    margin: 0;
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    color: rgba(255, 255, 255, 0.85);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  :global(.js) .hero-title-text {
+    visibility: hidden;
+  }
+
+  :global(.js) .hero-title-text.ready {
+    visibility: visible;
+  }
+
+  :global(.js) .hero-subtitle {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  :global(.js) .hero-subtitle.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .scroll-hint {
+    position: absolute;
+    z-index: 1;
+    left: 50%;
+    bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: none;
+    background: none;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    opacity: calc(1 - var(--intro-progress, 0) * 1.2);
+    transition: color 0.2s;
+  }
+
+  .scroll-hint:hover {
+    color: #fff;
+  }
+
+  .scroll-hint-icon {
+    width: 20px;
+    height: 20px;
+    animation: hint-bob 1.6s ease-in-out infinite;
+  }
+
+  @keyframes caret-blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  @keyframes hint-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-bg,
+    .hero-inner {
+      transform: none;
+    }
+
+    .hero-caret,
+    .scroll-hint-icon {
+      animation: none;
+    }
+
+    :global(.js) .hero-subtitle {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  const root = document.getElementById('hero-intro');
+  const titleEl = document.getElementById('hero-title-text');
+  const subtitleEl = document.getElementById('hero-subtitle');
+  const caretEl = root?.querySelector('.hero-caret');
+  const hint = document.getElementById('scroll-hint');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const typeSpeed = Number(root?.dataset.typeSpeed) || 90;
+  const startDelay = Number(root?.dataset.startDelay) || 400;
+
+  // --- Typewriter (plays once on load) ---
+  if (titleEl) {
+    if (reduceMotion.matches) {
+      titleEl.classList.add('ready');
+      caretEl?.classList.add('done');
+      subtitleEl?.classList.add('visible');
+    } else {
+      const full = titleEl.textContent ?? '';
+      titleEl.textContent = '';
+      titleEl.classList.add('ready');
+      let i = 0;
+      window.setTimeout(() => {
+        const timer = window.setInterval(() => {
+          i += 1;
+          titleEl.textContent = full.slice(0, i);
+          if (i >= full.length) {
+            window.clearInterval(timer);
+            caretEl?.classList.add('done');
+            subtitleEl?.classList.add('visible');
+          }
+        }, typeSpeed);
+      }, startDelay);
+    }
+  }
+
+  // --- Scroll hint: scroll one viewport down ---
+  hint?.addEventListener('click', () => {
+    window.scrollTo({
+      top: root?.clientHeight ?? window.innerHeight,
+      behavior: reduceMotion.matches ? 'auto' : 'smooth',
+    });
+  });
+
+  // --- Scroll-linked reveal progress (drives scale/dim) ---
+  let ticking = false;
+  function updateProgress() {
+    const denom = root?.clientHeight || window.innerHeight || 1;
+    const p = Math.min(Math.max(window.scrollY / denom, 0), 1);
+    root?.style.setProperty('--intro-progress', p.toFixed(4));
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(updateProgress);
+      ticking = true;
+    }
+  }, { passive: true });
+  updateProgress();
+</script>

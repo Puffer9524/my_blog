@@ -1,23 +1,28 @@
 ---
 import '../styles/global.css';
+import '../styles/prose.css';
 import Navbar from '../components/Navbar.astro';
 import ProfileCard from '../components/ProfileCard.astro';
 import CategoryCard from '../components/CategoryCard.astro';
 import TagCard from '../components/TagCard.astro';
 import HomeCover from '../components/HomeCover.astro';
+import HeroIntro from '../components/HeroIntro.astro';
 import ImageLightbox from '../components/common/ImageLightbox.astro';
+import SiteSearch from '../components/SiteSearch.astro';
 import { siteConfig } from '../config/site';
 
 export interface Props {
   title?: string;
   description?: string;
   showSideCards?: boolean;
+  homeIntro?: boolean;
 }
 
 const {
   title,
   description,
   showSideCards = true,
+  homeIntro = false,
 } = Astro.props;
 const hasRightSidebar = Astro.slots['right-sidebar'] != null;
 ---
@@ -30,6 +35,7 @@ const hasRightSidebar = Astro.slots['right-sidebar'] != null;
     <meta name="color-scheme" content="light dark" />
     <script is:inline>
       (() => {
+        document.documentElement.classList.add('js');
         try {
           const mode = localStorage.getItem('theme-mode') || 'system';
           const theme = mode === 'system'
@@ -52,33 +58,36 @@ const hasRightSidebar = Astro.slots['right-sidebar'] != null;
   </head>
   <body>
     <Navbar />
-    <HomeCover />
+    {homeIntro ? <HeroIntro /> : <HomeCover />}
 
-    <div
-      class="page-wrapper"
-      class:list={{
-        'has-right-sidebar': hasRightSidebar,
-        'with-home-cover': true,
-      }}
-    >
-      {showSideCards && (
-        <aside class="page-sidebar">
-          <ProfileCard />
-          <CategoryCard />
-          <TagCard />
-        </aside>
-      )}
+    <div class:list={['page-wrapper-outer', { 'with-home-intro': homeIntro }]}>
+      <div
+        class="page-wrapper"
+        class:list={{
+          'has-right-sidebar': hasRightSidebar,
+          'with-home-cover': !homeIntro,
+        }}
+      >
+        {showSideCards && (
+          <aside class="page-sidebar">
+            <ProfileCard />
+            <CategoryCard />
+            <TagCard />
+          </aside>
+        )}
 
-      <div class="page-content">
-        <slot />
+        <div class="page-content">
+          <slot />
+        </div>
+
+        {hasRightSidebar && (
+          <aside class="page-right-sidebar">
+            {Astro.slots['right-sidebar'] != null && <slot name="right-sidebar" />}
+          </aside>
+        )}
       </div>
-
-      {hasRightSidebar && (
-        <aside class="page-right-sidebar">
-          {Astro.slots['right-sidebar'] != null && <slot name="right-sidebar" />}
-        </aside>
-      )}
     </div>
     <ImageLightbox />
+    <SiteSearch />
   </body>
 </html>

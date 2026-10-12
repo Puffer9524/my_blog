@@ -10,7 +10,7 @@ const { item } = Astro.props;
 const { title, description, image, category, link } = item.data;
 ---
 
-<article class="media-card card" data-category={category}>
+<article class="media-card card" id={`life-${item.slug}`} data-category={category}>
   <div class="media-image-wrapper">
     <img
       src={image}
